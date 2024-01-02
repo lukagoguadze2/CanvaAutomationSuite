@@ -1,0 +1,1 @@
+Videos will be permanently stored in this folder.

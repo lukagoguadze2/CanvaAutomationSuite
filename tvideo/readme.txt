@@ -1,0 +1,1 @@
+Videos will be temporarily stored in this folder to upload it on google drive.
