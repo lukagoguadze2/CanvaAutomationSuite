@@ -156,7 +156,7 @@ class CanvaBot:
         
 
 class CanvaImage(CanvaBot):
-    def __init__(self, text, ) -> None:
+    def __init__(self) -> None:
         """
         CanvaVideo class extends CanvaBot and represents a specialized instance for working with Canva's image workspace.
         Upon initialization, it inherits the login automation features from CanvaBot and navigates to the Canva image workspace.
@@ -284,19 +284,15 @@ class CanvaImage(CanvaBot):
             driver.quit()
             return False
             
-    def change_photo(self, pictures: str, btn=0) -> dict:
+    def change_photo(self, pictures: str) -> dict:
         """
         Change the photo on a Canva design by uploading and downloading a new image.
 
         Args:
         - pictures: The path to the image file to be uploaded.
-        - btn: A parameter indicating the whether specific (save) button is clicked or not.
-            If not provided (default is 0), meaning the save button will be clicked repeatedly.
 
-        NOTE: 'btn' must be parsed when using this function in an iteration.
-            
         Returns:
-        - A dictionary containing edited image download link and button click status.
+        - A dictionary containing download link of edited image.
 
         Example Usage:
         >>> bot = CanvaImage()
@@ -363,36 +359,30 @@ class CanvaImage(CanvaBot):
             download_selection_button.click()
             sleep(2)
             
-            # setting file type to JPG
-            btnclicked = btn # Set the button click status to the provided argument or default to 0.
             
-            # If button click status is less than 2, adjust download settings (file type and save settings).
-            if btnclicked < 2:
-                for i in driver.find_elements(By.TAG_NAME, 'p'):
-                    try:
-                        f_txt = i.text
-                    except:
-                        continue
-                    if f_txt == 'File type' and not btnclicked:
-                        i.click()
-                        sleep(1)
-
-                         # Find and click the 'JPG' button for setting the file type to JPG.
-                        for j in driver.find_elements(By.CLASS_NAME, 'k__oiw'):
-                            for l in j.find_elements(By.TAG_NAME, 'div'):
-                                if l.text == 'JPG':
-                                    sleep(1)
-                                    l.click()
-                                    btnclicked += 1
-                                    break
-                            break
-                         # End of JPG button selection
-                        
-                    if f_txt == 'Save download settings' and btnclicked == 1:
-                        sleep(1)
-                        i.click()
-                        btnclicked += 1
-                        break   
+            # adjust download settings (file type and save settings).
+            for types in driver.find_elements(By.TAG_NAME, 'p'):
+                try:
+                    type_txt = types.text
+                except:
+                    continue
+                if type_txt == 'File type':
+                    file_type = types.find_element(By.XPATH, '..').find_element(By.TAG_NAME, "div").text.split('\n')[0]
+                    if file_type == "PNG":
+                        types.click()
+                        sleep(0.1)
+                        # Find and click the 'JPG' button for setting the file type to JPG.
+                        for l in driver.find_element(By.CLASS_NAME, 'k__oiw').find_elements(By.TAG_NAME, 'div'):
+                            if l.text == 'JPG':
+                                l.click()
+                                break
+                    else:
+                        break
+            
+            check_box = driver.find_element(By.CLASS_NAME, "mq8XRA").find_element(By.TAG_NAME, "span")
+            # Equals to 3 if check box is not checked
+            if len(check_box.get_attribute("class").split(" ")) == 3:
+                check_box.click()
             # End of download settings adjustment
             
             sleep(1)
@@ -433,12 +423,12 @@ class CanvaImage(CanvaBot):
             action.pointer_action.click()
             action.perform()
             print("Done...")
-            return {'imagelink': image_link, 'buttonclicked': btnclicked}
+            return {'imagelink': image_link}
         except Exception as e:
             print(e)
             driver.save_screenshot('error.png')
             driver.quit()
-            return {'imagelink': False, 'buttonclicked': 0}
+            return {'imagelink': False}
 
 
 class CanvaVideo(CanvaBot):
@@ -665,16 +655,16 @@ class CanvaVideo(CanvaBot):
             # If you want to upload the video to Google Drive, uncomment the following code block.
             # Note: This is an additional add-on and requires the DriveUpload.py file.
             #---------------------------------------------------------------------------------------
-            # if os.path.exists(destination_file):
-            #     import DriveUpload
-            #     print("Video file transferred successfully.")
-            #     DriveUpload.upload_folder_to_drive(file_path='tvideo', folder_name=foldername)
-            #     sleep(3)
-            #     shutil.move(destination_file, r'canvavideos\{}.mp4'.format(caption_text))
-            #     os.remove(source_file)
-            # else:
-            #     print("Failed to transfer the video file.")
-            # ---------------------------------------------------------------------------------------
+            if os.path.exists(destination_file):
+                import DriveUpload
+                print("Video file transferred successfully.")
+                DriveUpload.upload_folder_to_drive(file_path='tvideo', folder_name=foldername)
+                sleep(3)
+                shutil.move(destination_file, r'canvavideos\{}.mp4'.format(caption_text))
+                os.remove(source_file)
+            else:
+                print("Failed to transfer the video file.")
+            #---------------------------------------------------------------------------------------
             try:
                 os.remove(source_file)
             except:
