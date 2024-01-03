@@ -186,7 +186,7 @@ Upload a video to Canva, set it as a background, and transfer the edited video t
 
 #### Parameters
 - `video_path`: The path to the video file to be uploaded.
-- `foldername` (optional): The name of the google drive folder. Should be provided if [DriveUpload](CanvaBot.py#L668-L676) lines are not commented.
+- `foldername` (optional): The name of the google drive folder. Should be provided if [DriveUpload](CanvaBot.py#L658-L666) lines are not commented.
 
 #### Returns
 - `True` if the video is successfully processed and transferred, `False` otherwise.
