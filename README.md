@@ -130,17 +130,15 @@ texts = ["Former Text Content", "Latter Text Content"]
 image_paths = ["path/to/image1.jpg", "path/to/image2.jpg"]
 bot = CanvaImage()
 
-click_count = 0
 for text, image_path in zip(texts, image_paths):
   change_text = bot.change_text(text)
   if not change_text:
     print("Error while changing a text")
     break
 
-  change_image = bot.change_photo(image_path, btn=click_count)
+  change_image = bot.change_photo(image_path)
   if change_image["imagelink"]:
     # do something with download link
-    click_count = change_image["buttonclicked"]
   else:
     print("Error while changing a image")
     break
