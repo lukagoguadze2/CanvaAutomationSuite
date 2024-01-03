@@ -655,15 +655,15 @@ class CanvaVideo(CanvaBot):
             # If you want to upload the video to Google Drive, uncomment the following code block.
             # Note: This is an additional add-on and requires the DriveUpload.py file.
             #---------------------------------------------------------------------------------------
-            if os.path.exists(destination_file):
-                import DriveUpload
-                print("Video file transferred successfully.")
-                DriveUpload.upload_folder_to_drive(file_path='tvideo', folder_name=foldername)
-                sleep(3)
-                shutil.move(destination_file, r'canvavideos\{}.mp4'.format(caption_text))
-                os.remove(source_file)
-            else:
-                print("Failed to transfer the video file.")
+            # if os.path.exists(destination_file):
+            #     import DriveUpload
+            #     print("Video file transferred successfully.")
+            #     DriveUpload.upload_folder_to_drive(file_path='tvideo', folder_name=foldername)
+            #     sleep(3)
+            #     shutil.move(destination_file, r'canvavideos\{}.mp4'.format(caption_text))
+            #     os.remove(source_file)
+            # else:
+            #     print("Failed to transfer the video file.")
             #---------------------------------------------------------------------------------------
             try:
                 os.remove(source_file)
