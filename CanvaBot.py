@@ -540,7 +540,7 @@ class CanvaVideo(CanvaBot):
 
         Args:
         - video_path: The path to the video file to be uploaded.
-        - text: The text to be added to the video.
+        - foldername: Name of the google drive folder.
 
         Returns:
         - True if the video is successfully processed and transferred, False otherwise.
@@ -652,18 +652,18 @@ class CanvaVideo(CanvaBot):
             # Moving the downloaded video file to a specified destination
             shutil.copy(source_file, destination_file)
 
-            # If you want to upload the video to Google Drive, uncomment the following code block.
             # Note: This is an additional add-on and requires the DriveUpload.py file.
             #---------------------------------------------------------------------------------------
-            # if os.path.exists(destination_file):
-            #     import DriveUpload
-            #     print("Video file transferred successfully.")
-            #     DriveUpload.upload_folder_to_drive(file_path='tvideo', folder_name=foldername)
-            #     sleep(3)
-            #     shutil.move(destination_file, r'canvavideos\{}.mp4'.format(caption_text))
-            #     os.remove(source_file)
-            # else:
-            #     print("Failed to transfer the video file.")
+            if foldername:
+                if os.path.exists(destination_file):
+                    import DriveUpload
+                    print("Video file transferred successfully.")
+                    DriveUpload.upload_folder_to_drive(file_path='tvideo', folder_name=foldername)
+                    sleep(3)
+                    shutil.move(destination_file, r'canvavideos\{}.mp4'.format(caption_text))
+                    os.remove(source_file)
+                else:
+                    print("Failed to transfer the video file.")
             #---------------------------------------------------------------------------------------
             try:
                 os.remove(source_file)
@@ -676,3 +676,4 @@ class CanvaVideo(CanvaBot):
             driver.save_screenshot('error.png')
             driver.quit()
             return False
+        
