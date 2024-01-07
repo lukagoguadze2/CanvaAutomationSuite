@@ -6,13 +6,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import ElementNotVisibleException
 from selenium.webdriver import Keys, ActionChains
 from bs4 import BeautifulSoup
-from selenium.webdriver import ActionChains
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
 import sys, shutil, json, os
 from time import sleep
 
 class CanvaBot:
-    def __init__(self) -> None:
+    def __init__(self, headless=True) -> None:
         """
         CanvaBot class automates login to canva.com by opening a new browser window,
         navigating to canva.com/login, and performing Google Sign-In using preconfigured account details.
@@ -44,7 +43,8 @@ class CanvaBot:
 
         # Configure Chrome options
         self.option = webdriver.ChromeOptions()
-        # self.option.add_argument("--headless")
+        if headless:
+            self.option.add_argument("--headless")
         self.option.add_argument("--mute-audio")
         self.option.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.0.0 Safari/537.36")
 
@@ -446,7 +446,7 @@ class CanvaVideo(CanvaBot):
         super().__init__()
         self.driver.get(self.acc_dict["canvavideo"])
         self.driver.implicitly_wait(0)
-        self.wait.until_not(lambda x: x.find_element(By.XPATH, '//button[@aria-describedby=":rq:0"]').text.lower() == "view only")
+        self.wait.until_not(lambda x: x.find_element(By.CSS_SELECTOR, 'button._1QoxDw.Qkd66A.tYI0Vw.o4TrkA.Eph8Hg.NT2yCg.Qkd66A.tYI0Vw.lsXp_w.cwOZMg.zQlusQ.uRvRjQ.ETF18w').text.lower() == "view only")
 
     def change_video_text(self, text: str) -> bool:
         """
@@ -483,8 +483,10 @@ class CanvaVideo(CanvaBot):
             # Find the video frame element to narrow working space
             video_frame = driver.find_element(By.CLASS_NAME, 'pTC3Qw')
 
+            text_element = video_frame.find_element(By.TAG_NAME, "span")
+
             # Double-click on the design element to activate the editable area
-            ActionChains(driver).double_click(video_frame.find_element(By.TAG_NAME, "span")).perform()
+            ActionChains(driver).double_click(text_element).perform()
 
             # Define keyboard shortcuts based on the platform (Mac or others)
             cmd_ctrl = Keys.COMMAND if sys.platform == 'darwin' else Keys.CONTROL
@@ -534,7 +536,7 @@ class CanvaVideo(CanvaBot):
             driver.quit()
             return False
 
-    def change_video(self, video_path: str, foldername=None) -> bool:
+    def change_video(self, video_path: str, foldername=""):
         """
         Upload a video to Canva, set it as a background, and transfer the edited video to a designated folder.
 
@@ -643,8 +645,8 @@ class CanvaVideo(CanvaBot):
             action.perform()
 
             # Retrieving caption text and defining source and destination paths for the downloaded video file
-            caption_text = driver.find_element(By.CLASS_NAME, 'YjmJuQ').text
-            source_file = r"C:\Users\{}\Downloads\{}.mp4".format(os.getlogin(), caption_text)
+            caption_text = driver.find_element(By.CLASS_NAME, 'YjmJuQ').get_attribute("outerHTML").rstrip("</div>").split(">")[-1]
+            source_file = r"C:\Users\{}\Downloads\{}.mp4".format(os.getlogin(), caption_text.replace(" ", "_"))
             destination_file = r"tvideo\{}.mp4".format(caption_text)
             while not os.path.exists(source_file):
                 sleep(1)
@@ -660,17 +662,15 @@ class CanvaVideo(CanvaBot):
                     print("Video file transferred successfully.")
                     DriveUpload.upload_folder_to_drive(file_path='tvideo', folder_name=foldername)
                     sleep(3)
-                    shutil.move(destination_file, r'canvavideos\{}.mp4'.format(caption_text))
+                    shutil.move(destination_file, r'canvavideos\{}.mp4'.format(caption_text.replace(" ", "_")))
                     os.remove(source_file)
                 else:
                     print("Failed to transfer the video file.")
             #---------------------------------------------------------------------------------------
-            try:
-                os.remove(source_file)
-            except:
-                pass
-
+            
+            print("Success")
             return True
+        
         except Exception as e:
             print(e)
             driver.save_screenshot('error.png')
